@@ -83,7 +83,7 @@
 
   <footer>
     Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br>
-    Incluye grabación de voz, transcripción, y simplificación lingüística para facilitar la comprensión.
+    Incluye grabación de voz, transcripción, y división simplificada en "Acción" y "Recursos".
   </footer>
 
   <script>
@@ -126,55 +126,42 @@
     function procesarTexto() {
       let original = texto.textContent.toLowerCase().trim();
 
+      // Reglas básicas de simplificación
       const reglas = [
-        [/\byo\b/g, 'yo'],
-        [/\btú\b|\busted\b/g, 'tú'],
-        [/\bél\b|\bella\b/g, 'él/ella'],
-        [/\bnosotros\b/g, 'nosotros'],
-        [/\bustedes\b/g, 'ustedes'],
-        [/\bquiero\b|\bdeseo\b|\bme gustaría\b/g, 'yo querer'],
-        [/\bnecesito\b/g, 'yo necesitar'],
-        [/\btengo que\b/g, 'yo deber'],
-        [/\btengo\b/g, 'yo tener'],
-        [/\bestoy\b/g, 'yo estar'],
-        [/\bpuedo\b/g, 'yo poder'],
-        [/\bvoy a\b|\biré a\b|\bir\b/g, 'yo ir'],
-        [/\bcomer\b/g, 'comer'],
-        [/\bbeber\b|\btomar\b/g, 'beber'],
-        [/\bdormir\b/g, 'dormir'],
-        [/\btrabajar\b/g, 'trabajar'],
-        [/\bestudiar\b/g, 'estudiar'],
-        [/\bjugar\b/g, 'jugar'],
-        [/\bcaminar\b/g, 'caminar'],
+        [/\bquiero\b|\bdeseo\b|\bme gustaría\b/g, 'querer'],
+        [/\bnecesito\b/g, 'necesitar'],
+        [/\btengo que\b/g, 'deber'],
+        [/\btengo\b/g, 'tener'],
+        [/\bestoy\b/g, 'estar'],
+        [/\bpuedo\b/g, 'poder'],
+        [/\bvoy a\b|\biré a\b|\bir\b/g, 'ir'],
         [/\bel |la |los |las /g, ''],
         [/\bal /g, 'a '],
         [/\bdel /g, 'de '],
         [/\bpara\b|\bcon\b/g, ''],
-        [/\bporque\b|\by\b|\bpero\b/g, ''],
-        [/\bmercado\b/g, 'mercado'],
-        [/\bfrutas?\b/g, 'fruta'],
-        [/\bropa\b/g, 'ropa'],
-        [/\bcelular\b|\bteléfono\b/g, 'celular'],
-        [/\bcomputadora\b/g, 'computadora'],
-        [/\bcarro\b|\bauto\b/g, 'carro'],
-        [/\bescuela\b/g, 'escuela'],
-        [/\bcasa\b/g, 'casa'],
-        [/\btrabajo\b/g, 'trabajo'],
-        [/\bfeliz\b/g, 'feliz'],
-        [/\btriste\b/g, 'triste'],
-        [/\benojad[oa]\b/g, 'enojado'],
-        [/\bmiedo\b/g, 'miedo'],
-        [/\bhambrient[oa]\b|\bcon hambre\b/g, 'yo tener hambre']
+        [/\bporque\b|\by\b|\bpero\b/g, '']
       ];
 
       for (let [patron, reemplazo] of reglas) {
         original = original.replace(patron, reemplazo);
       }
 
-      textoAdaptado.textContent = original;
+      // División por frases y clasificación básica
+      let frases = original.split(/(?<=[.!?])\s+/);
+      let acciones = [];
+      let recursos = [];
+
+      frases.forEach(frase => {
+        if (/\b(ir|venir|caminar|llamar|hablar|buscar|comprar|comer|beber|escribir|ver|hacer|pedir|preguntar|dar|traer|usar|salir|esperar|empezar)\b/.test(frase)) {
+          acciones.push('- ' + frase.trim());
+        } else if (/\b(hora|lugar|dinero|celular|nombre|cosa|tiempo|ayuda|persona|camino|día|número)\b/.test(frase)) {
+          recursos.push('- ' + frase.trim());
+        }
+      });
+
+      textoAdaptado.innerHTML = `🟩 <strong>Acción a realizar:</strong>\n${acciones.join('\n') || 'No identificado'}\n\n🟦 <strong>Recursos o formas de hacerlo:</strong>\n${recursos.join('\n') || 'No identificado'}`;
     }
   </script>
 </body>
 </html>
-
 
