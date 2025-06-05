@@ -51,9 +51,12 @@
       padding: 20px;
       border-radius: 12px;
       width: 100%;
-      max-width: 800px;
+      max-width: 1000px;
+      height: 300px;
       margin-bottom: 20px;
       white-space: pre-line;
+      overflow-y: auto;
+      font-size: 1.1rem;
     }
     footer {
       margin-top: auto;
@@ -62,7 +65,7 @@
       color: #ccc;
       border-top: 1px solid rgba(255, 255, 255, 0.2);
       padding-top: 15px;
-      max-width: 800px;
+      max-width: 1000px;
     }
   </style>
 </head>
@@ -71,6 +74,7 @@
   <div class="controls">
     <button onclick="iniciarReconocimiento()">Iniciar</button>
     <button onclick="detenerReconocimiento()">Detener</button>
+    <button onclick="borrarTexto()">🧹 Borrar</button>
     <label>Modo:
       <select id="modo">
         <option value="normal">🗣️ Normal</option>
@@ -128,6 +132,11 @@
       window.detenerReconocimiento = () => reconocimiento.stop();
     }
 
+    function borrarTexto() {
+      texto.textContent = '';
+      textoAdaptado.textContent = '';
+    }
+
     function simplificarTexto(texto) {
       texto = texto.toLowerCase().trim();
 
@@ -180,7 +189,6 @@
     }
 
     async function adaptarConIA(textoOriginal) {
-      // Simulación con espera y texto fijo (se puede conectar a una API de IA real)
       textoAdaptado.textContent = '⏳ Adaptando con IA...';
       setTimeout(() => {
         textoAdaptado.textContent = textoOriginal.toLowerCase().replace(/(yo|quiero|necesito|estoy|puedo|voy a)/g, 'yo');
@@ -189,3 +197,4 @@
   </script>
 </body>
 </html>
+
