@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Codificador de Voz para Personas Sordas</title>
+  <script src="https://unpkg.com/compromise@14.3.2/builds/compromise.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -22,12 +23,14 @@
     h1 {
       font-size: 2rem;
       margin-bottom: 1rem;
+      text-align: center;
     }
     .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 20px;
+      justify-content: center;
     }
     button, select {
       padding: 12px 20px;
@@ -52,9 +55,9 @@
       border-radius: 12px;
       width: 100%;
       max-width: 1000px;
-      height: 300px;
+      height: 320px;
       margin-bottom: 20px;
-      white-space: pre-line;
+      white-space: pre-wrap;
       overflow-y: auto;
       font-size: 1.1rem;
     }
@@ -72,96 +75,116 @@
 <body>
   <h1>🎙️ Codificador de Voz para Personas Sordas</h1>
   <div class="controls">
-    <button onclick="iniciarReconocimiento()">Grabar Voz</button>
-    <button onclick="detenerReconocimiento()">Detener</button>
-    <button onclick="procesarTexto()">🧠 Codificar Texto</button>
-    <button onclick="borrarTexto()">🧹 Borrar</button>
+    <button id="btnStart">Grabar Voz</button>
+    <button id="btnStop" disabled>Detener</button>
+    <button id="btnCodificar" disabled>🧠 Codificar Texto</button>
+    <button id="btnBorrar">🧹 Borrar</button>
   </div>
 
   <div class="panel" id="texto">(Aquí aparecerá la transcripción de voz)</div>
   <div class="panel" id="textoAdaptado">(Aquí aparecerá el texto adaptado para personas sordas)</div>
 
   <footer>
-    Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br>
-    Incluye grabación de voz, transcripción, y división simplificada en "Acción" y "Recursos".
+    Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br />
+    Incluye grabación de voz, transcripción, y separación simplificada en "Acción a realizar" y "Recursos o formas de hacerlo".
   </footer>
 
-  <script>
-    const texto = document.getElementById('texto');
-    const textoAdaptado = document.getElementById('textoAdaptado');
+<script>
+  const texto = document.getElementById('texto');
+  const textoAdaptado = document.getElementById('textoAdaptado');
+  const btnStart = document.getElementById('btnStart');
+  const btnStop = document.getElementById('btnStop');
+  const btnCodificar = document.getElementById('btnCodificar');
+  const btnBorrar = document.getElementById('btnBorrar');
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let reconocimiento;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    texto.textContent = '⚠️ Tu navegador no soporta reconocimiento de voz.';
+    btnStart.disabled = true;
+  }
 
-    if (!SpeechRecognition) {
-      texto.textContent = '⚠️ Tu navegador no soporta reconocimiento de voz.';
-    } else {
-      reconocimiento = new SpeechRecognition();
-      reconocimiento.lang = 'es-ES';
-      reconocimiento.continuous = true;
-      reconocimiento.interimResults = false;
+  let reconocimiento;
+  let textoCompleto = '';
 
-      reconocimiento.onresult = (event) => {
-        let transcripcion = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcripcion += event.results[i][0].transcript;
-        }
-        texto.textContent += transcripcion + '\n';
-      };
-    }
+  if (SpeechRecognition) {
+    reconocimiento = new SpeechRecognition();
+    reconocimiento.lang = 'es-ES';
+    reconocimiento.continuous = true;
+    reconocimiento.interimResults = false;
 
-    function iniciarReconocimiento() {
-      if (reconocimiento) reconocimiento.start();
-    }
-
-    function detenerReconocimiento() {
-      if (reconocimiento) reconocimiento.stop();
-    }
-
-    function borrarTexto() {
-      texto.textContent = '';
-      textoAdaptado.textContent = '';
-    }
-
-    function procesarTexto() {
-      let original = texto.textContent.toLowerCase().trim();
-
-      // Reglas básicas de simplificación
-      const reglas = [
-        [/\bquiero\b|\bdeseo\b|\bme gustaría\b/g, 'querer'],
-        [/\bnecesito\b/g, 'necesitar'],
-        [/\btengo que\b/g, 'deber'],
-        [/\btengo\b/g, 'tener'],
-        [/\bestoy\b/g, 'estar'],
-        [/\bpuedo\b/g, 'poder'],
-        [/\bvoy a\b|\biré a\b|\bir\b/g, 'ir'],
-        [/\bel |la |los |las /g, ''],
-        [/\bal /g, 'a '],
-        [/\bdel /g, 'de '],
-        [/\bpara\b|\bcon\b/g, ''],
-        [/\bporque\b|\by\b|\bpero\b/g, '']
-      ];
-
-      for (let [patron, reemplazo] of reglas) {
-        original = original.replace(patron, reemplazo);
+    reconocimiento.onresult = (event) => {
+      let transcripcion = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        transcripcion += event.results[i][0].transcript;
       }
+      textoCompleto += transcripcion + ' ';
+      texto.textContent = textoCompleto.trim();
+      btnCodificar.disabled = false;
+    };
 
-      // División por frases y clasificación básica
-      let frases = original.split(/(?<=[.!?])\s+/);
-      let acciones = [];
-      let recursos = [];
+    reconocimiento.onerror = (event) => {
+      console.error('Error reconocimiento:', event.error);
+    };
+  }
 
-      frases.forEach(frase => {
-        if (/\b(ir|venir|caminar|llamar|hablar|buscar|comprar|comer|beber|escribir|ver|hacer|pedir|preguntar|dar|traer|usar|salir|esperar|empezar)\b/.test(frase)) {
-          acciones.push('- ' + frase.trim());
-        } else if (/\b(hora|lugar|dinero|celular|nombre|cosa|tiempo|ayuda|persona|camino|día|número)\b/.test(frase)) {
-          recursos.push('- ' + frase.trim());
-        }
-      });
+  btnStart.onclick = () => {
+    textoCompleto = '';
+    texto.textContent = '';
+    textoAdaptado.textContent = '';
+    reconocimiento.start();
+    btnStart.disabled = true;
+    btnStop.disabled = false;
+    btnCodificar.disabled = true;
+  };
 
-      textoAdaptado.innerHTML = `🟩 <strong>Acción a realizar:</strong>\n${acciones.join('\n') || 'No identificado'}\n\n🟦 <strong>Recursos o formas de hacerlo:</strong>\n${recursos.join('\n') || 'No identificado'}`;
+  btnStop.onclick = () => {
+    reconocimiento.stop();
+    btnStart.disabled = false;
+    btnStop.disabled = true;
+    btnCodificar.disabled = false;
+  };
+
+  btnBorrar.onclick = () => {
+    textoCompleto = '';
+    texto.textContent = '';
+    textoAdaptado.textContent = '';
+    btnCodificar.disabled = true;
+  };
+
+  btnCodificar.onclick = () => {
+    if (!textoCompleto.trim()) {
+      textoAdaptado.textContent = 'No hay texto para codificar.';
+      return;
     }
-  </script>
+
+    // Procesar texto con compromise.js para detectar verbos y sustantivos
+    const doc = nlp(textoCompleto);
+
+    // Obtener verbos (acciones)
+    let verbos = doc.verbs().out('array');
+
+    // Obtener sustantivos (recursos)
+    let sustantivos = doc.nouns().out('array');
+
+    // Para hacer más entendible, eliminamos repetidos
+    verbos = [...new Set(verbos)].map(v => v.toLowerCase());
+    sustantivos = [...new Set(sustantivos)].map(s => s.toLowerCase());
+
+    // Construimos texto simplificado:
+    // Acción: lista de verbos con formato sencillo (infinitivo)
+    // Recursos: lista de sustantivos
+    let textoAccion = verbos.length
+      ? '🟩 Acción a realizar:\n- ' + verbos.join('\n- ')
+      : '🟩 Acción a realizar:\n- No se detectaron acciones claras';
+
+    let textoRecursos = sustantivos.length
+      ? '🟦 Recursos o formas de hacerlo:\n- ' + sustantivos.join('\n- ')
+      : '🟦 Recursos o formas de hacerlo:\n- No se detectaron recursos claros';
+
+    textoAdaptado.textContent = textoAccion + '\n\n' + textoRecursos;
+  };
+</script>
 </body>
 </html>
+
 
