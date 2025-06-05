@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transcripción Accesible en Tiempo Real</title>
+  <title>Codificador de Voz para Personas Sordas</title>
   <style>
     * {
       box-sizing: border-box;
@@ -70,66 +70,52 @@
   </style>
 </head>
 <body>
-  <h1>🎙️ Transcripción Accesible en Tiempo Real</h1>
+  <h1>🎙️ Codificador de Voz para Personas Sordas</h1>
   <div class="controls">
-    <button onclick="iniciarReconocimiento()">Iniciar</button>
+    <button onclick="iniciarReconocimiento()">Grabar Voz</button>
     <button onclick="detenerReconocimiento()">Detener</button>
+    <button onclick="procesarTexto()">🧠 Codificar Texto</button>
     <button onclick="borrarTexto()">🧹 Borrar</button>
-    <label>Modo:
-      <select id="modo">
-        <option value="normal">🗣️ Normal</option>
-        <option value="señante">🤟 Señante</option>
-        <option value="inteligente">🧠 Inteligente (IA)</option>
-      </select>
-    </label>
   </div>
 
-  <div class="panel" id="texto">(Aquí aparecerá lo que dices)</div>
-  <div class="panel" id="textoAdaptado">(Aquí aparecerá el texto para personas sordas)</div>
+  <div class="panel" id="texto">(Aquí aparecerá la transcripción de voz)</div>
+  <div class="panel" id="textoAdaptado">(Aquí aparecerá el texto adaptado para personas sordas)</div>
 
   <footer>
     Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br>
-    Incluye reconocimiento de voz en tiempo real, transformación por reglas y adaptación por IA (experimental).
+    Incluye grabación de voz, transcripción, y simplificación lingüística para facilitar la comprensión.
   </footer>
 
   <script>
     const texto = document.getElementById('texto');
     const textoAdaptado = document.getElementById('textoAdaptado');
-    const modo = document.getElementById('modo');
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let reconocimiento;
 
     if (!SpeechRecognition) {
       texto.textContent = '⚠️ Tu navegador no soporta reconocimiento de voz.';
     } else {
-      const reconocimiento = new SpeechRecognition();
+      reconocimiento = new SpeechRecognition();
       reconocimiento.lang = 'es-ES';
       reconocimiento.continuous = true;
-      reconocimiento.interimResults = true;
+      reconocimiento.interimResults = false;
 
       reconocimiento.onresult = (event) => {
         let transcripcion = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           transcripcion += event.results[i][0].transcript;
         }
-
-        texto.textContent = transcripcion;
-
-        switch (modo.value) {
-          case 'normal':
-            textoAdaptado.textContent = transcripcion;
-            break;
-          case 'señante':
-            textoAdaptado.textContent = simplificarTexto(transcripcion);
-            break;
-          case 'inteligente':
-            adaptarConIA(transcripcion);
-            break;
-        }
+        texto.textContent += transcripcion + '\n';
       };
+    }
 
-      window.iniciarReconocimiento = () => reconocimiento.start();
-      window.detenerReconocimiento = () => reconocimiento.stop();
+    function iniciarReconocimiento() {
+      if (reconocimiento) reconocimiento.start();
+    }
+
+    function detenerReconocimiento() {
+      if (reconocimiento) reconocimiento.stop();
     }
 
     function borrarTexto() {
@@ -137,8 +123,8 @@
       textoAdaptado.textContent = '';
     }
 
-    function simplificarTexto(texto) {
-      texto = texto.toLowerCase().trim();
+    function procesarTexto() {
+      let original = texto.textContent.toLowerCase().trim();
 
       const reglas = [
         [/\byo\b/g, 'yo'],
@@ -182,19 +168,13 @@
       ];
 
       for (let [patron, reemplazo] of reglas) {
-        texto = texto.replace(patron, reemplazo);
+        original = original.replace(patron, reemplazo);
       }
 
-      return texto;
-    }
-
-    async function adaptarConIA(textoOriginal) {
-      textoAdaptado.textContent = '⏳ Adaptando con IA...';
-      setTimeout(() => {
-        textoAdaptado.textContent = textoOriginal.toLowerCase().replace(/(yo|quiero|necesito|estoy|puedo|voy a)/g, 'yo');
-      }, 1200);
+      textoAdaptado.textContent = original;
     }
   </script>
 </body>
 </html>
+
 
