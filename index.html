@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transcripción Accesible en Tiempo Real</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a40, #4b006e);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button, select {
+      padding: 12px 20px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #ff2e63;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover, select:hover {
+      background-color: #e61e52;
+    }
+    select {
+      background-color: #3a0ca3;
+    }
+    .panel {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(6px);
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 800px;
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+    footer {
+      margin-top: auto;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #ccc;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 15px;
+      max-width: 800px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎙️ Transcripción Accesible en Tiempo Real</h1>
+  <div class="controls">
+    <button onclick="iniciarReconocimiento()">Iniciar</button>
+    <button onclick="detenerReconocimiento()">Detener</button>
+    <label>Modo:
+      <select id="modo">
+        <option value="normal">🗣️ Normal</option>
+        <option value="señante">🤟 Señante</option>
+        <option value="inteligente">🧠 Inteligente (IA)</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="panel" id="texto">(Aquí aparecerá lo que dices)</div>
+  <div class="panel" id="textoAdaptado">(Aquí aparecerá el texto para personas sordas)</div>
+
+  <footer>
+    Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br>
+    Incluye reconocimiento de voz en tiempo real, transformación por reglas y adaptación por IA (experimental).
+  </footer>
+
+  <script>
+    const texto = document.getElementById('texto');
+    const textoAdaptado = document.getElementById('textoAdaptado');
+    const modo = document.getElementById('modo');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      texto.textContent = '⚠️ Tu navegador no soporta reconocimiento de voz.';
+    } else {
+      const reconocimiento = new SpeechRecognition();
+      reconocimiento.lang = 'es-ES';
+      reconocimiento.continuous = true;
+      reconocimiento.interimResults = true;
+
+      reconocimiento.onresult = (event) => {
+        let transcripcion = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          transcripcion += event.results[i][0].transcript;
+        }
+
+        texto.textContent = transcripcion;
+
+        switch (modo.value) {
+          case 'normal':
+            textoAdaptado.textContent = transcripcion;
+            break;
+          case 'señante':
+            textoAdaptado.textContent = simplificarTexto(transcripcion);
+            break;
+          case 'inteligente':
+            adaptarConIA(transcripcion);
+            break;
+        }
+      };
+
+      window.iniciarReconocimiento = () => reconocimiento.start();
+      window.detenerReconocimiento = () => reconocimiento.stop();
+    }
+
+    function simplificarTexto(texto) {
+      texto = texto.toLowerCase().trim();
+
+      const reglas = [
+        [/\byo\b/g, 'yo'],
+        [/\btú\b|\busted\b/g, 'tú'],
+        [/\bél\b|\bella\b/g, 'él/ella'],
+        [/\bnosotros\b/g, 'nosotros'],
+        [/\bustedes\b/g, 'ustedes'],
+        [/\bquiero\b|\bdeseo\b|\bme gustaría\b/g, 'yo querer'],
+        [/\bnecesito\b/g, 'yo necesitar'],
+        [/\btengo que\b/g, 'yo deber'],
+        [/\btengo\b/g, 'yo tener'],
+        [/\bestoy\b/g, 'yo estar'],
+        [/\bpuedo\b/g, 'yo poder'],
+        [/\bvoy a\b|\biré a\b|\bir\b/g, 'yo ir'],
+        [/\bcomer\b/g, 'comer'],
+        [/\bbeber\b|\btomar\b/g, 'beber'],
+        [/\bdormir\b/g, 'dormir'],
+        [/\btrabajar\b/g, 'trabajar'],
+        [/\bestudiar\b/g, 'estudiar'],
+        [/\bjugar\b/g, 'jugar'],
+        [/\bcaminar\b/g, 'caminar'],
+        [/\bel |la |los |las /g, ''],
+        [/\bal /g, 'a '],
+        [/\bdel /g, 'de '],
+        [/\bpara\b|\bcon\b/g, ''],
+        [/\bporque\b|\by\b|\bpero\b/g, ''],
+        [/\bmercado\b/g, 'mercado'],
+        [/\bfrutas?\b/g, 'fruta'],
+        [/\bropa\b/g, 'ropa'],
+        [/\bcelular\b|\bteléfono\b/g, 'celular'],
+        [/\bcomputadora\b/g, 'computadora'],
+        [/\bcarro\b|\bauto\b/g, 'carro'],
+        [/\bescuela\b/g, 'escuela'],
+        [/\bcasa\b/g, 'casa'],
+        [/\btrabajo\b/g, 'trabajo'],
+        [/\bfeliz\b/g, 'feliz'],
+        [/\btriste\b/g, 'triste'],
+        [/\benojad[oa]\b/g, 'enojado'],
+        [/\bmiedo\b/g, 'miedo'],
+        [/\bhambrient[oa]\b|\bcon hambre\b/g, 'yo tener hambre']
+      ];
+
+      for (let [patron, reemplazo] of reglas) {
+        texto = texto.replace(patron, reemplazo);
+      }
+
+      return texto;
+    }
+
+    async function adaptarConIA(textoOriginal) {
+      // Simulación con espera y texto fijo (se puede conectar a una API de IA real)
+      textoAdaptado.textContent = '⏳ Adaptando con IA...';
+      setTimeout(() => {
+        textoAdaptado.textContent = textoOriginal.toLowerCase().replace(/(yo|quiero|necesito|estoy|puedo|voy a)/g, 'yo');
+      }, 1200);
+    }
+  </script>
+</body>
+</html>
