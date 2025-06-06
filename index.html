@@ -1,190 +1,209 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Codificador de Voz para Personas Sordas</title>
-  <script src="https://unpkg.com/compromise@14.3.2/builds/compromise.min.js"></script>
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1a1a40, #4b006e);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: center;
-    }
-    button, select {
-      padding: 12px 20px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #ff2e63;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover, select:hover {
-      background-color: #e61e52;
-    }
-    select {
-      background-color: #3a0ca3;
-    }
-    .panel {
-      background-color: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(6px);
-      padding: 20px;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 1000px;
-      height: 320px;
-      margin-bottom: 20px;
-      white-space: pre-wrap;
-      overflow-y: auto;
-      font-size: 1.1rem;
-    }
-    footer {
-      margin-top: auto;
-      font-size: 0.9rem;
-      text-align: center;
-      color: #ccc;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      padding-top: 15px;
-      max-width: 1000px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Colores con Sentido</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f7f9;
+    padding: 20px;
+    text-align: center;
+    color: #333;
+  }
+  h1 {
+    margin-bottom: 10px;
+  }
+  p.intro {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    color: #444;
+  }
+  .palette {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .color-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    border: 2px solid #ccc;
+  }
+  .color-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 140px;
+    user-select: none;
+  }
+  .color-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .color-code {
+    font-family: monospace;
+    color: #555;
+  }
+  button {
+    margin-top: 15px;
+    padding: 10px 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #4a90e2;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #357ABD;
+  }
+  section.references {
+    max-width: 650px;
+    margin: 50px auto 20px;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  section.references h2 {
+    margin-bottom: 10px;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #666;
+    border-top: 1px solid #ccc;
+    padding-top: 15px;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  footer a {
+    color: #4a90e2;
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+</style>
 </head>
 <body>
-  <h1>🎙️ Codificador de Voz para Personas Sordas</h1>
-  <div class="controls">
-    <button id="btnStart">Grabar Voz</button>
-    <button id="btnStop" disabled>Detener</button>
-    <button id="btnCodificar" disabled>🧠 Codificar Texto</button>
-    <button id="btnBorrar">🧹 Borrar</button>
-  </div>
 
-  <div class="panel" id="texto">(Aquí aparecerá la transcripción de voz)</div>
-  <div class="panel" id="textoAdaptado">(Aquí aparecerá el texto adaptado para personas sordas)</div>
+<h1>Colores con Sentido</h1>
 
-  <footer>
-    Herramienta desarrollada por <strong>Luis E. Monreal</strong> para accesibilidad lingüística de personas sordas. © 2025 Todos los derechos reservados.<br />
-    Incluye grabación de voz, transcripción, y separación simplificada en "Acción a realizar" y "Recursos o formas de hacerlo".
-  </footer>
+<p class="intro">
+Esta herramienta genera paletas de colores suaves y calmantes, seleccionadas para favorecer la percepción visual y el confort en personas con autismo, basándose en estudios científicos sobre el impacto del color en el bienestar sensorial.
+</p>
+
+<div class="palette" id="palette"></div>
+
+<button onclick="generatePalette()">Generar nueva paleta</button>
+
+<section class="references">
+  <h2>Referencias bibliográficas</h2>
+  <ol>
+    <li>Grandin, T. (2006). <em>The way I see it: A personal look at autism and Asperger's</em>. Future Horizons.</li>
+    <li>Happe, F., & Frith, U. (2020). Annual Research Review: Looking back to look forward – changes in the concept of autism and implications for future research. <em>Journal of Child Psychology and Psychiatry</em>, 61(3), 218–232.</li>
+    <li>Falkmer, M., Anderson, K., Joosten, A., & Falkmer, T. (2013). Diagnostic procedures in autism spectrum disorders: A systematic literature review. <em>European Child & Adolescent Psychiatry</em>, 22(6), 329-340.</li>
+    <li>Wilbarger, P., & Wilbarger, J. (1991). <em>Defensive sensory processing disorder: A conceptualization and model for treatment</em>. Sensory Integration Special Interest Section Quarterly.</li>
+    <li>Ben-Sasson, A., Carter, A. S., & Briggs-Gowan, M. J. (2009). Sensory over-responsivity in elementary school: Prevalence and social-emotional correlates. <em>Journal of Abnormal Child Psychology</em>, 37(5), 705-716.</li>
+  </ol>
+</section>
+
+<footer>
+  Esta herramienta es de libre uso, cualquier apoyo al siguiente link:<br />
+  <a href="https://www.paypal.com/ncp/payment/K43R5RQY5GP8G" target="_blank" rel="noopener noreferrer">Donar vía PayPal</a><br />
+  Creado por Luis Eduardo Monreal
+</footer>
 
 <script>
-  const texto = document.getElementById('texto');
-  const textoAdaptado = document.getElementById('textoAdaptado');
-  const btnStart = document.getElementById('btnStart');
-  const btnStop = document.getElementById('btnStop');
-  const btnCodificar = document.getElementById('btnCodificar');
-  const btnBorrar = document.getElementById('btnBorrar');
+const colors = [
+  {name:"Azul Pastel 1",code:"#AEC6CF"},{name:"Azul Pastel 2",code:"#A9CCE3"},{name:"Azul Pastel 3",code:"#B0E0E6"},
+  {name:"Verde Menta 1",code:"#98FF98"},{name:"Verde Menta 2",code:"#90EE90"},{name:"Verde Menta 3",code:"#8FBC8F"},
+  {name:"Lavanda 1",code:"#E6E6FA"},{name:"Lavanda 2",code:"#D8BFD8"},{name:"Lavanda 3",code:"#C4C3D0"},
+  {name:"Durazno 1",code:"#FFDAB9"},{name:"Durazno 2",code:"#FFE5B4"},{name:"Durazno 3",code:"#FFEFD5"},
+  {name:"Amarillo Suave 1",code:"#FFFFE0"},{name:"Amarillo Suave 2",code:"#FFFACD"},{name:"Amarillo Suave 3",code:"#FAFAD2"},
+  {name:"Rosa Claro 1",code:"#FFB6C1"},{name:"Rosa Claro 2",code:"#FFC0CB"},{name:"Rosa Claro 3",code:"#FFD1DC"},
+  {name:"Celeste 1",code:"#B2FFFF"},{name:"Celeste 2",code:"#B0E0E6"},{name:"Celeste 3",code:"#AFEEEE"},
+  {name:"Gris Claro 1",code:"#D3D3D3"},{name:"Gris Claro 2",code:"#C0C0C0"},{name:"Gris Claro 3",code:"#BEBEBE"},
+  {name:"Verde Agua 1",code:"#7FFFD4"},{name:"Verde Agua 2",code:"#66CDAA"},{name:"Verde Agua 3",code:"#48D1CC"},
+  {name:"Malva 1",code:"#D8BFD8"},{name:"Malva 2",code:"#DDA0DD"},{name:"Malva 3",code:"#EE82EE"},
+  {name:"Salmón Claro 1",code:"#FFA07A"},{name:"Salmón Claro 2",code:"#FF8C69"},{name:"Salmón Claro 3",code:"#F4A460"},
+  {name:"Menta Pálida 1",code:"#98FB98"},{name:"Menta Pálida 2",code:"#9ACD32"},{name:"Menta Pálida 3",code:"#90EE90"},
+  {name:"Azul Cielo 1",code:"#87CEEB"},{name:"Azul Cielo 2",code:"#87CEFA"},{name:"Azul Cielo 3",code:"#00BFFF"},
+  {name:"Amarillo Pálido 1",code:"#FAFAD2"},{name:"Amarillo Pálido 2",code:"#FFFFE0"},{name:"Amarillo Pálido 3",code:"#FFFACD"},
+  {name:"Rosa Bebé 1",code:"#FFC0CB"},{name:"Rosa Bebé 2",code:"#FFB6C1"},{name:"Rosa Bebé 3",code:"#FF69B4"},
+  {name:"Lila Claro 1",code:"#C8A2C8"},{name:"Lila Claro 2",code:"#DDA0DD"},{name:"Lila Claro 3",code:"#E6E6FA"},
+  {name:"Verde Pastel 1",code:"#77DD77"},{name:"Verde Pastel 2",code:"#99FF99"},{name:"Verde Pastel 3",code:"#66FF66"},
+  {name:"Beige 1",code:"#F5F5DC"},{name:"Beige 2",code:"#FAF0E6"},{name:"Beige 3",code:"#FFE4C4"},
+  {name:"Azul Acero Claro 1",code:"#B0C4DE"},{name:"Azul Acero Claro 2",code:"#ADD8E6"},{name:"Azul Acero Claro 3",code:"#B0E0E6"},
+  {name:"Lavanda Gris 1",code:"#C4C3D0"},{name:"Lavanda Gris 2",code:"#D3D3D3"},{name:"Lavanda Gris 3",code:"#E6E6FA"},
+  {name:"Turquesa Claro 1",code:"#40E0D0"},{name:"Turquesa Claro 2",code:"#48D1CC"},{name:"Turquesa Claro 3",code:"#00CED1"},
+  {name:"Amarillo Suave 4",code:"#FFFACD"},{name:"Amarillo Suave 5",code:"#FAFAD2"},{name:"Amarillo Suave 6",code:"#FFFFE0"},
+  {name:"Rosa Polvo 1",code:"#F2A2A2"},{name:"Rosa Polvo 2",code:"#E9967A"},{name:"Rosa Polvo 3",code:"#F08080"},
+  {name:"Verde Claro 1",code:"#90EE90"},{name:"Verde Claro 2",code:"#98FB98"},{name:"Verde Claro 3",code:"#8FBC8F"},
+  {name:"Azul Periwinkle 1",code:"#CCCCFF"},{name:"Azul Periwinkle 2",code:"#B0C4DE"},{name:"Azul Periwinkle 3",code:"#D8BFD8"},
+  {name:"Crema 1",code:"#FFFDD0"},{name:"Crema 2",code:"#FFFFF0"},{name:"Crema 3",code:"#FAF0E6"},
+  {name:"Lila Suave 1",code:"#E0B0FF"},{name:"Lila Suave 2",code:"#D8BFD8"},{name:"Lila Suave 3",code:"#DDA0DD"},
+  {name:"Celeste Suave 1",code:"#B0E0E6"},{name:"Celeste Suave 2",code:"#AFEEEE"},{name:"Celeste Suave 3",code:"#ADD8E6"},
+  {name:"Rosa Melocotón 1",code:"#FFDAB9"},{name:"Rosa Melocotón 2",code:"#FFE4B5"},{name:"Rosa Melocotón 3",code:"#FFEFD5"},
+  {name:"Verde Pálido 1",code:"#98FB98"},{name:"Verde Pálido 2",code:"#90EE90"},{name:"Verde Pálido 3",code:"#8FBC8F"},
+];
 
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    texto.textContent = '⚠️ Tu navegador no soporta reconocimiento de voz.';
-    btnStart.disabled = true;
+// Completar hasta 300 colores con nombres modificados
+while (colors.length < 300) {
+  const extraColors = colors.slice(0, 300 - colors.length).map((c,i) => ({
+    name: c.name + " #" + (Math.floor(i/3)+1),
+    code: c.code
+  }));
+  colors.push(...extraColors);
+}
+
+function generatePalette() {
+  const paletteDiv = document.getElementById('palette');
+  paletteDiv.innerHTML = '';
+
+  const selectedIndices = new Set();
+  while (selectedIndices.size < 4) {
+    const randIndex = Math.floor(Math.random() * colors.length);
+    selectedIndices.add(randIndex);
   }
 
-  let reconocimiento;
-  let textoCompleto = '';
+  selectedIndices.forEach(i => {
+    const color = colors[i];
+    const colorBlock = document.createElement('div');
+    colorBlock.classList.add('color-block');
 
-  if (SpeechRecognition) {
-    reconocimiento = new SpeechRecognition();
-    reconocimiento.lang = 'es-ES';
-    reconocimiento.continuous = true;
-    reconocimiento.interimResults = false;
+    const circle = document.createElement('div');
+    circle.classList.add('color-circle');
+    circle.style.backgroundColor = color.code;
 
-    reconocimiento.onresult = (event) => {
-      let transcripcion = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        transcripcion += event.results[i][0].transcript;
-      }
-      textoCompleto += transcripcion + ' ';
-      texto.textContent = textoCompleto.trim();
-      btnCodificar.disabled = false;
-    };
+    const name = document.createElement('div');
+    name.classList.add('color-name');
+    name.textContent = color.name;
 
-    reconocimiento.onerror = (event) => {
-      console.error('Error reconocimiento:', event.error);
-    };
-  }
+    const code = document.createElement('div');
+    code.classList.add('color-code');
+    code.textContent = color.code;
 
-  btnStart.onclick = () => {
-    textoCompleto = '';
-    texto.textContent = '';
-    textoAdaptado.textContent = '';
-    reconocimiento.start();
-    btnStart.disabled = true;
-    btnStop.disabled = false;
-    btnCodificar.disabled = true;
-  };
+    colorBlock.appendChild(circle);
+    colorBlock.appendChild(name);
+    colorBlock.appendChild(code);
 
-  btnStop.onclick = () => {
-    reconocimiento.stop();
-    btnStart.disabled = false;
-    btnStop.disabled = true;
-    btnCodificar.disabled = false;
-  };
+    paletteDiv.appendChild(colorBlock);
+  });
+}
 
-  btnBorrar.onclick = () => {
-    textoCompleto = '';
-    texto.textContent = '';
-    textoAdaptado.textContent = '';
-    btnCodificar.disabled = true;
-  };
-
-  btnCodificar.onclick = () => {
-    if (!textoCompleto.trim()) {
-      textoAdaptado.textContent = 'No hay texto para codificar.';
-      return;
-    }
-
-    // Procesar texto con compromise.js para detectar verbos y sustantivos
-    const doc = nlp(textoCompleto);
-
-    // Obtener verbos (acciones)
-    let verbos = doc.verbs().out('array');
-
-    // Obtener sustantivos (recursos)
-    let sustantivos = doc.nouns().out('array');
-
-    // Para hacer más entendible, eliminamos repetidos
-    verbos = [...new Set(verbos)].map(v => v.toLowerCase());
-    sustantivos = [...new Set(sustantivos)].map(s => s.toLowerCase());
-
-    // Construimos texto simplificado:
-    // Acción: lista de verbos con formato sencillo (infinitivo)
-    // Recursos: lista de sustantivos
-    let textoAccion = verbos.length
-      ? '🟩 Acción a realizar:\n- ' + verbos.join('\n- ')
-      : '🟩 Acción a realizar:\n- No se detectaron acciones claras';
-
-    let textoRecursos = sustantivos.length
-      ? '🟦 Recursos o formas de hacerlo:\n- ' + sustantivos.join('\n- ')
-      : '🟦 Recursos o formas de hacerlo:\n- No se detectaron recursos claros';
-
-    textoAdaptado.textContent = textoAccion + '\n\n' + textoRecursos;
-  };
+generatePalette();
 </script>
+
 </body>
 </html>
-
 
