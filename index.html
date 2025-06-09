@@ -6,10 +6,7 @@
   <title>Calculadora de Estadística</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Reset básico */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -59,19 +56,18 @@
       justify-content: center;
     }
 
-    #inputDatos {
+    #inputDatos, #tipoDatos {
       flex-grow: 1;
-      min-width: 260px;
-      padding: 14px 18px;
+      min-width: 220px;
+      padding: 12px 16px;
       font-size: 1.1rem;
       border: 2px solid #0d47a1;
       border-radius: 8px;
-      outline-offset: 2px;
-      transition: border-color 0.3s ease;
     }
 
-    #inputDatos:focus {
+    #inputDatos:focus, #tipoDatos:focus {
       border-color: #1976d2;
+      outline: none;
     }
 
     button {
@@ -84,7 +80,7 @@
       cursor: pointer;
       font-size: 1.1rem;
       transition: background 0.3s ease;
-      min-width: 140px;
+      min-width: 180px;
     }
 
     button:hover {
@@ -117,12 +113,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: transform 0.2s ease;
-    }
-
-    .grafico-container:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 6px 26px rgb(0 0 0 / 0.15);
     }
 
     canvas {
@@ -154,25 +144,30 @@
 <body>
   <header>
     <h1>Calculador de Estadística</h1>
-    <p>Introduce una lista de números separados por comas para calcular estadísticas clave y visualizar múltiples gráficos que muestran la distribución, tendencia y dispersión de tus datos.</p>
+    <p>Introduce una lista de números separados por comas y elige si se trata de una población o una muestra.</p>
   </header>
+
   <main>
     <section id="inputSection">
       <input
         type="text"
         id="inputDatos"
         placeholder="Ejemplo: 10, 20, 30, 30, 50"
-        aria-label="Campo para ingresar datos separados por coma"
+        aria-label="Campo para ingresar datos"
       />
+      <select id="tipoDatos" aria-label="Selecciona si es muestra o población">
+        <option value="poblacion">Población</option>
+        <option value="muestra">Muestra</option>
+      </select>
       <button onclick="procesar()">Calcular y Mostrar Dashboard</button>
     </section>
 
     <section id="resultados" role="region" aria-live="polite" aria-atomic="true">
-      <!-- Resultados numéricos se muestran aquí -->
+      <!-- Resultados numéricos -->
     </section>
 
     <section class="dashboard" id="graficos" aria-label="Dashboard de gráficos estadísticos">
-      <!-- Gráficos se generan aquí -->
+      <!-- Gráficos -->
     </section>
   </main>
 
@@ -181,6 +176,9 @@
 
     function procesar() {
       const entrada = document.getElementById('inputDatos').value;
+      const tipo = document.getElementById('tipoDatos').value;
+      const esMuestra = tipo === 'muestra';
+
       const datos = entrada
         .split(',')
         .map(n => parseFloat(n.trim()))
@@ -191,9 +189,8 @@
         return;
       }
 
-      // Cálculos estadísticos
       const media = calcularMedia(datos);
-      const varianza = calcularVarianza(datos, media);
+      const varianza = calcularVarianza(datos, media, esMuestra);
       const desviacion = Math.sqrt(varianza);
       const mediana = calcularMediana(datos);
       const moda = calcularModa(datos);
@@ -206,20 +203,18 @@
         <p><strong>Media:</strong> ${media.toFixed(2)} |
         <strong>Mediana:</strong> ${mediana} |
         <strong>Moda:</strong> ${moda} |
-        <strong>Varianza:</strong> ${varianza.toFixed(2)} |
+        <strong>Varianza (${tipo}):</strong> ${varianza.toFixed(2)} |
         <strong>Desviación:</strong> ${desviacion.toFixed(2)} |
         <strong>Coef. Variación:</strong> ${coefVariacion.toFixed(2)}% |
         <strong>Rango:</strong> ${rango} |
         <strong>Q1:</strong> ${q1} |
         <strong>Q3:</strong> ${q3}</p>`;
 
-      // Limpiar gráficos anteriores
       const contenedor = document.getElementById('graficos');
       contenedor.innerHTML = '';
       charts.forEach(c => c.destroy());
       charts = [];
 
-      // Crear gráficos
       agregarGrafico(contenedor, 'Línea de tendencia respecto a la media', 'line', {
         labels: datos.map((_, i) => `#${i + 1}`),
         datasets: [
@@ -275,14 +270,18 @@
     function calcularMedia(arr) {
       return arr.reduce((a, b) => a + b, 0) / arr.length;
     }
-    function calcularVarianza(arr, media) {
-      return arr.reduce((a, b) => a + (b - media) ** 2, 0) / arr.length;
+
+    function calcularVarianza(arr, media, muestra = false) {
+      const divisor = muestra ? (arr.length - 1) : arr.length;
+      return arr.reduce((a, b) => a + (b - media) ** 2, 0) / divisor;
     }
+
     function calcularMediana(arr) {
       const a = [...arr].sort((a, b) => a - b);
       const m = Math.floor(a.length / 2);
       return a.length % 2 ? a[m] : ((a[m - 1] + a[m]) / 2).toFixed(2);
     }
+
     function calcularModa(arr) {
       const f = {}, modas = [];
       arr.forEach(v => f[v] = (f[v] || 0) + 1);
@@ -290,14 +289,17 @@
       for (let k in f) if (f[k] === max) modas.push(k);
       return modas.length === arr.length ? 'Sin moda' : modas.join(', ');
     }
+
     function calcularQ1(arr) {
       const s = [...arr].sort((a, b) => a - b);
       return calcularMediana(s.slice(0, Math.floor(s.length / 2)));
     }
+
     function calcularQ3(arr) {
       const s = [...arr].sort((a, b) => a - b);
       return calcularMediana(s.slice(Math.ceil(s.length / 2)));
     }
+
     function calcularHistograma(arr, clases = 6) {
       const min = Math.min(...arr), max = Math.max(...arr);
       const paso = (max - min) / clases;
@@ -311,6 +313,7 @@
       });
       return { bins, freqs };
     }
+
     function contar(arr) {
       const c = {};
       arr.forEach(v => c[v] = (c[v] || 0) + 1);
@@ -319,3 +322,4 @@
   </script>
 </body>
 </html>
+
