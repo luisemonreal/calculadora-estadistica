@@ -1,209 +1,321 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Colores con Sentido</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    background: #f4f7f9;
-    padding: 20px;
-    text-align: center;
-    color: #333;
-  }
-  h1 {
-    margin-bottom: 10px;
-  }
-  p.intro {
-    max-width: 600px;
-    margin: 0 auto 30px;
-    font-size: 1.1rem;
-    line-height: 1.4;
-    color: #444;
-  }
-  .palette {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    margin-bottom: 40px;
-  }
-  .color-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-    border: 2px solid #ccc;
-  }
-  .color-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 140px;
-    user-select: none;
-  }
-  .color-name {
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-  .color-code {
-    font-family: monospace;
-    color: #555;
-  }
-  button {
-    margin-top: 15px;
-    padding: 10px 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    background-color: #4a90e2;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background-color: #357ABD;
-  }
-  section.references {
-    max-width: 650px;
-    margin: 50px auto 20px;
-    text-align: left;
-    font-size: 0.9rem;
-    color: #555;
-  }
-  section.references h2 {
-    margin-bottom: 10px;
-  }
-  footer {
-    margin-top: 40px;
-    font-size: 0.9rem;
-    color: #666;
-    border-top: 1px solid #ccc;
-    padding-top: 15px;
-    max-width: 650px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  footer a {
-    color: #4a90e2;
-    text-decoration: none;
-  }
-  footer a:hover {
-    text-decoration: underline;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculadora de Estadística</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-weight: 700;
+      color: #0d47a1;
+      margin-bottom: 5px;
+      font-size: 2.4rem;
+      letter-spacing: 1px;
+    }
+
+    header p {
+      font-size: 1.1rem;
+      color: #555;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    #inputSection {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #inputDatos {
+      flex-grow: 1;
+      min-width: 260px;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      border: 2px solid #0d47a1;
+      border-radius: 8px;
+      outline-offset: 2px;
+      transition: border-color 0.3s ease;
+    }
+
+    #inputDatos:focus {
+      border-color: #1976d2;
+    }
+
+    button {
+      background: #1976d2;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 14px 28px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.3s ease;
+      min-width: 140px;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    #resultados {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgb(0 0 0 / 0.1);
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-align: center;
+      color: #0d47a1;
+      user-select: none;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 28px;
+    }
+
+    .grafico-container {
+      background: white;
+      padding: 18px 18px 30px;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgb(0 0 0 / 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease;
+    }
+
+    .grafico-container:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 26px rgb(0 0 0 / 0.15);
+    }
+
+    canvas {
+      max-width: 100% !important;
+      height: 280px !important;
+      border-radius: 8px;
+    }
+
+    .descripcion {
+      margin-top: 14px;
+      font-size: 1rem;
+      color: #555;
+      text-align: center;
+      font-style: italic;
+      user-select: none;
+      max-width: 90%;
+    }
+
+    @media (max-width: 400px) {
+      #inputSection {
+        flex-direction: column;
+      }
+      button {
+        min-width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>Calculador de Estadística</h1>
+    <p>Introduce una lista de números separados por comas para calcular estadísticas clave y visualizar múltiples gráficos que muestran la distribución, tendencia y dispersión de tus datos.</p>
+  </header>
+  <main>
+    <section id="inputSection">
+      <input
+        type="text"
+        id="inputDatos"
+        placeholder="Ejemplo: 10, 20, 30, 30, 50"
+        aria-label="Campo para ingresar datos separados por coma"
+      />
+      <button onclick="procesar()">Calcular y Mostrar Dashboard</button>
+    </section>
 
-<h1>Colores con Sentido</h1>
+    <section id="resultados" role="region" aria-live="polite" aria-atomic="true">
+      <!-- Resultados numéricos se muestran aquí -->
+    </section>
 
-<p class="intro">
-Esta herramienta genera paletas de colores suaves y calmantes, seleccionadas para favorecer la percepción visual y el confort en personas con autismo, basándose en estudios científicos sobre el impacto del color en el bienestar sensorial.
-</p>
+    <section class="dashboard" id="graficos" aria-label="Dashboard de gráficos estadísticos">
+      <!-- Gráficos se generan aquí -->
+    </section>
+  </main>
 
-<div class="palette" id="palette"></div>
+  <script>
+    let charts = [];
 
-<button onclick="generatePalette()">Generar nueva paleta</button>
+    function procesar() {
+      const entrada = document.getElementById('inputDatos').value;
+      const datos = entrada
+        .split(',')
+        .map(n => parseFloat(n.trim()))
+        .filter(n => !isNaN(n));
 
-<section class="references">
-  <h2>Referencias bibliográficas</h2>
-  <ol>
-    <li>Grandin, T. (2006). <em>The way I see it: A personal look at autism and Asperger's</em>. Future Horizons.</li>
-    <li>Happe, F., & Frith, U. (2020). Annual Research Review: Looking back to look forward – changes in the concept of autism and implications for future research. <em>Journal of Child Psychology and Psychiatry</em>, 61(3), 218–232.</li>
-    <li>Falkmer, M., Anderson, K., Joosten, A., & Falkmer, T. (2013). Diagnostic procedures in autism spectrum disorders: A systematic literature review. <em>European Child & Adolescent Psychiatry</em>, 22(6), 329-340.</li>
-    <li>Wilbarger, P., & Wilbarger, J. (1991). <em>Defensive sensory processing disorder: A conceptualization and model for treatment</em>. Sensory Integration Special Interest Section Quarterly.</li>
-    <li>Ben-Sasson, A., Carter, A. S., & Briggs-Gowan, M. J. (2009). Sensory over-responsivity in elementary school: Prevalence and social-emotional correlates. <em>Journal of Abnormal Child Psychology</em>, 37(5), 705-716.</li>
-  </ol>
-</section>
+      if (datos.length < 2) {
+        alert('Introduce al menos dos números válidos.');
+        return;
+      }
 
-<footer>
-  Esta herramienta es de libre uso, cualquier apoyo al siguiente link:<br />
-  <a href="https://www.paypal.com/ncp/payment/K43R5RQY5GP8G" target="_blank" rel="noopener noreferrer">Donar vía PayPal</a><br />
-  Creado por Luis Eduardo Monreal
-</footer>
+      // Cálculos estadísticos
+      const media = calcularMedia(datos);
+      const varianza = calcularVarianza(datos, media);
+      const desviacion = Math.sqrt(varianza);
+      const mediana = calcularMediana(datos);
+      const moda = calcularModa(datos);
+      const rango = Math.max(...datos) - Math.min(...datos);
+      const q1 = calcularQ1(datos);
+      const q3 = calcularQ3(datos);
+      const coefVariacion = (desviacion / media) * 100;
 
-<script>
-const colors = [
-  {name:"Azul Pastel 1",code:"#AEC6CF"},{name:"Azul Pastel 2",code:"#A9CCE3"},{name:"Azul Pastel 3",code:"#B0E0E6"},
-  {name:"Verde Menta 1",code:"#98FF98"},{name:"Verde Menta 2",code:"#90EE90"},{name:"Verde Menta 3",code:"#8FBC8F"},
-  {name:"Lavanda 1",code:"#E6E6FA"},{name:"Lavanda 2",code:"#D8BFD8"},{name:"Lavanda 3",code:"#C4C3D0"},
-  {name:"Durazno 1",code:"#FFDAB9"},{name:"Durazno 2",code:"#FFE5B4"},{name:"Durazno 3",code:"#FFEFD5"},
-  {name:"Amarillo Suave 1",code:"#FFFFE0"},{name:"Amarillo Suave 2",code:"#FFFACD"},{name:"Amarillo Suave 3",code:"#FAFAD2"},
-  {name:"Rosa Claro 1",code:"#FFB6C1"},{name:"Rosa Claro 2",code:"#FFC0CB"},{name:"Rosa Claro 3",code:"#FFD1DC"},
-  {name:"Celeste 1",code:"#B2FFFF"},{name:"Celeste 2",code:"#B0E0E6"},{name:"Celeste 3",code:"#AFEEEE"},
-  {name:"Gris Claro 1",code:"#D3D3D3"},{name:"Gris Claro 2",code:"#C0C0C0"},{name:"Gris Claro 3",code:"#BEBEBE"},
-  {name:"Verde Agua 1",code:"#7FFFD4"},{name:"Verde Agua 2",code:"#66CDAA"},{name:"Verde Agua 3",code:"#48D1CC"},
-  {name:"Malva 1",code:"#D8BFD8"},{name:"Malva 2",code:"#DDA0DD"},{name:"Malva 3",code:"#EE82EE"},
-  {name:"Salmón Claro 1",code:"#FFA07A"},{name:"Salmón Claro 2",code:"#FF8C69"},{name:"Salmón Claro 3",code:"#F4A460"},
-  {name:"Menta Pálida 1",code:"#98FB98"},{name:"Menta Pálida 2",code:"#9ACD32"},{name:"Menta Pálida 3",code:"#90EE90"},
-  {name:"Azul Cielo 1",code:"#87CEEB"},{name:"Azul Cielo 2",code:"#87CEFA"},{name:"Azul Cielo 3",code:"#00BFFF"},
-  {name:"Amarillo Pálido 1",code:"#FAFAD2"},{name:"Amarillo Pálido 2",code:"#FFFFE0"},{name:"Amarillo Pálido 3",code:"#FFFACD"},
-  {name:"Rosa Bebé 1",code:"#FFC0CB"},{name:"Rosa Bebé 2",code:"#FFB6C1"},{name:"Rosa Bebé 3",code:"#FF69B4"},
-  {name:"Lila Claro 1",code:"#C8A2C8"},{name:"Lila Claro 2",code:"#DDA0DD"},{name:"Lila Claro 3",code:"#E6E6FA"},
-  {name:"Verde Pastel 1",code:"#77DD77"},{name:"Verde Pastel 2",code:"#99FF99"},{name:"Verde Pastel 3",code:"#66FF66"},
-  {name:"Beige 1",code:"#F5F5DC"},{name:"Beige 2",code:"#FAF0E6"},{name:"Beige 3",code:"#FFE4C4"},
-  {name:"Azul Acero Claro 1",code:"#B0C4DE"},{name:"Azul Acero Claro 2",code:"#ADD8E6"},{name:"Azul Acero Claro 3",code:"#B0E0E6"},
-  {name:"Lavanda Gris 1",code:"#C4C3D0"},{name:"Lavanda Gris 2",code:"#D3D3D3"},{name:"Lavanda Gris 3",code:"#E6E6FA"},
-  {name:"Turquesa Claro 1",code:"#40E0D0"},{name:"Turquesa Claro 2",code:"#48D1CC"},{name:"Turquesa Claro 3",code:"#00CED1"},
-  {name:"Amarillo Suave 4",code:"#FFFACD"},{name:"Amarillo Suave 5",code:"#FAFAD2"},{name:"Amarillo Suave 6",code:"#FFFFE0"},
-  {name:"Rosa Polvo 1",code:"#F2A2A2"},{name:"Rosa Polvo 2",code:"#E9967A"},{name:"Rosa Polvo 3",code:"#F08080"},
-  {name:"Verde Claro 1",code:"#90EE90"},{name:"Verde Claro 2",code:"#98FB98"},{name:"Verde Claro 3",code:"#8FBC8F"},
-  {name:"Azul Periwinkle 1",code:"#CCCCFF"},{name:"Azul Periwinkle 2",code:"#B0C4DE"},{name:"Azul Periwinkle 3",code:"#D8BFD8"},
-  {name:"Crema 1",code:"#FFFDD0"},{name:"Crema 2",code:"#FFFFF0"},{name:"Crema 3",code:"#FAF0E6"},
-  {name:"Lila Suave 1",code:"#E0B0FF"},{name:"Lila Suave 2",code:"#D8BFD8"},{name:"Lila Suave 3",code:"#DDA0DD"},
-  {name:"Celeste Suave 1",code:"#B0E0E6"},{name:"Celeste Suave 2",code:"#AFEEEE"},{name:"Celeste Suave 3",code:"#ADD8E6"},
-  {name:"Rosa Melocotón 1",code:"#FFDAB9"},{name:"Rosa Melocotón 2",code:"#FFE4B5"},{name:"Rosa Melocotón 3",code:"#FFEFD5"},
-  {name:"Verde Pálido 1",code:"#98FB98"},{name:"Verde Pálido 2",code:"#90EE90"},{name:"Verde Pálido 3",code:"#8FBC8F"},
-];
+      document.getElementById('resultados').innerHTML = `
+        <p><strong>Media:</strong> ${media.toFixed(2)} |
+        <strong>Mediana:</strong> ${mediana} |
+        <strong>Moda:</strong> ${moda} |
+        <strong>Varianza:</strong> ${varianza.toFixed(2)} |
+        <strong>Desviación:</strong> ${desviacion.toFixed(2)} |
+        <strong>Coef. Variación:</strong> ${coefVariacion.toFixed(2)}% |
+        <strong>Rango:</strong> ${rango} |
+        <strong>Q1:</strong> ${q1} |
+        <strong>Q3:</strong> ${q3}</p>`;
 
-// Completar hasta 300 colores con nombres modificados
-while (colors.length < 300) {
-  const extraColors = colors.slice(0, 300 - colors.length).map((c,i) => ({
-    name: c.name + " #" + (Math.floor(i/3)+1),
-    code: c.code
-  }));
-  colors.push(...extraColors);
-}
+      // Limpiar gráficos anteriores
+      const contenedor = document.getElementById('graficos');
+      contenedor.innerHTML = '';
+      charts.forEach(c => c.destroy());
+      charts = [];
 
-function generatePalette() {
-  const paletteDiv = document.getElementById('palette');
-  paletteDiv.innerHTML = '';
+      // Crear gráficos
+      agregarGrafico(contenedor, 'Línea de tendencia respecto a la media', 'line', {
+        labels: datos.map((_, i) => `#${i + 1}`),
+        datasets: [
+          { label: 'Datos', data: datos, borderColor: '#1976d2', fill: false, tension: 0.3 },
+          { label: 'Media', data: Array(datos.length).fill(media), borderColor: '#d32f2f', borderDash: [6, 6], fill: false }
+        ]
+      });
 
-  const selectedIndices = new Set();
-  while (selectedIndices.size < 4) {
-    const randIndex = Math.floor(Math.random() * colors.length);
-    selectedIndices.add(randIndex);
-  }
+      const { bins, freqs } = calcularHistograma(datos, 6);
+      agregarGrafico(contenedor, 'Histograma de frecuencias', 'bar', {
+        labels: bins,
+        datasets: [{ label: 'Frecuencia', data: freqs, backgroundColor: '#ff9800' }]
+      });
 
-  selectedIndices.forEach(i => {
-    const color = colors[i];
-    const colorBlock = document.createElement('div');
-    colorBlock.classList.add('color-block');
+      const conteo = contar(datos);
+      agregarGrafico(contenedor, 'Distribución proporcional (Pastel)', 'pie', {
+        labels: Object.keys(conteo),
+        datasets: [{
+          data: Object.values(conteo),
+          backgroundColor: ['#ef5350', '#42a5f5', '#ab47bc', '#ffa726', '#66bb6a', '#26a69a']
+        }]
+      });
 
-    const circle = document.createElement('div');
-    circle.classList.add('color-circle');
-    circle.style.backgroundColor = color.code;
+      const min = Math.min(...datos), max = Math.max(...datos);
+      agregarGrafico(contenedor, 'Boxplot simulado', 'bar', {
+        labels: ['Mínimo', 'Q1', 'Mediana', 'Q3', 'Máximo'],
+        datasets: [{
+          label: 'Valores',
+          data: [min, q1, mediana, q3, max],
+          backgroundColor: '#00897b'
+        }]
+      });
 
-    const name = document.createElement('div');
-    name.classList.add('color-name');
-    name.textContent = color.name;
+      agregarGrafico(contenedor, 'Frecuencia absoluta (Barras)', 'bar', {
+        labels: Object.keys(conteo),
+        datasets: [{ label: 'Frecuencia', data: Object.values(conteo), backgroundColor: '#42a5f5' }]
+      });
 
-    const code = document.createElement('div');
-    code.classList.add('color-code');
-    code.textContent = color.code;
+      agregarGrafico(contenedor, 'Dispersión de datos', 'scatter', {
+        datasets: [{ label: 'Datos', data: datos.map((v, i) => ({ x: i + 1, y: v })), backgroundColor: '#6a1b9a' }]
+      });
+    }
 
-    colorBlock.appendChild(circle);
-    colorBlock.appendChild(name);
-    colorBlock.appendChild(code);
+    function agregarGrafico(contenedor, titulo, tipo, data) {
+      const div = document.createElement('div');
+      div.className = 'grafico-container';
+      div.innerHTML = `<canvas aria-label="${titulo}" role="img"></canvas><div class='descripcion'>${titulo}</div>`;
+      contenedor.appendChild(div);
+      const ctx = div.querySelector('canvas').getContext('2d');
+      charts.push(new Chart(ctx, { type: tipo, data }));
+    }
 
-    paletteDiv.appendChild(colorBlock);
-  });
-}
-
-generatePalette();
-</script>
-
+    function calcularMedia(arr) {
+      return arr.reduce((a, b) => a + b, 0) / arr.length;
+    }
+    function calcularVarianza(arr, media) {
+      return arr.reduce((a, b) => a + (b - media) ** 2, 0) / arr.length;
+    }
+    function calcularMediana(arr) {
+      const a = [...arr].sort((a, b) => a - b);
+      const m = Math.floor(a.length / 2);
+      return a.length % 2 ? a[m] : ((a[m - 1] + a[m]) / 2).toFixed(2);
+    }
+    function calcularModa(arr) {
+      const f = {}, modas = [];
+      arr.forEach(v => f[v] = (f[v] || 0) + 1);
+      const max = Math.max(...Object.values(f));
+      for (let k in f) if (f[k] === max) modas.push(k);
+      return modas.length === arr.length ? 'Sin moda' : modas.join(', ');
+    }
+    function calcularQ1(arr) {
+      const s = [...arr].sort((a, b) => a - b);
+      return calcularMediana(s.slice(0, Math.floor(s.length / 2)));
+    }
+    function calcularQ3(arr) {
+      const s = [...arr].sort((a, b) => a - b);
+      return calcularMediana(s.slice(Math.ceil(s.length / 2)));
+    }
+    function calcularHistograma(arr, clases = 6) {
+      const min = Math.min(...arr), max = Math.max(...arr);
+      const paso = (max - min) / clases;
+      const bins = [], freqs = new Array(clases).fill(0);
+      for (let i = 0; i < clases; i++) {
+        bins.push(`${(min + i * paso).toFixed(1)}–${(min + (i + 1) * paso).toFixed(1)}`);
+      }
+      arr.forEach(val => {
+        const i = Math.min(Math.floor((val - min) / paso), clases - 1);
+        freqs[i]++;
+      });
+      return { bins, freqs };
+    }
+    function contar(arr) {
+      const c = {};
+      arr.forEach(v => c[v] = (c[v] || 0) + 1);
+      return c;
+    }
+  </script>
 </body>
 </html>
-
